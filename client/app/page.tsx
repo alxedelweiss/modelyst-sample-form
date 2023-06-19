@@ -1,12 +1,12 @@
 'use client'
-import { useState, forwardRef } from 'react'
+import React, { useState, forwardRef } from 'react'
 import Image from 'next/image'
 import { styled } from '@mui/material/styles'
 import Container from '@mui/material/Container'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
 import FormControlLabel from '@mui/material/FormControlLabel'
-import Switch, { SwitchProps } from '@mui/material/Switch'
+import Switch from '@mui/material/Switch'
 import FormControl from '@mui/material/FormControl'
 import FormHelperText from '@mui/material/FormHelperText'
 import InputLabel from '@mui/material/InputLabel'
@@ -19,6 +19,8 @@ import Snackbar from '@mui/material/Snackbar'
 import MuiAlert, { AlertProps } from '@mui/material/Alert'
 import Slide, { SlideProps } from '@mui/material/Slide'
 import Zoom from '@mui/material/Zoom'
+import { ThemeProvider, createTheme } from '@mui/material/styles'
+import { CssBaseline } from '@mui/material'
 
 interface formData {
 	user: string
@@ -51,6 +53,18 @@ const Alert = forwardRef<HTMLDivElement, AlertProps>(function Alert(
 
 type TransitionProps = Omit<SlideProps, 'direction'>
 
+const lightTheme = createTheme({
+	palette: {
+		mode: 'light'
+	}
+})
+
+const darkTheme = createTheme({
+	palette: {
+		mode: 'dark'
+	}
+})
+
 const dummyUsers = [
 	{ id: 1, name: 'John Doe' },
 	{ id: 2, name: 'Jane Doe' },
@@ -82,7 +96,7 @@ export default function Form() {
 		message: ''
 	})
 
-	const [theme, setTheme] = useState(false)
+	const [activeTheme, setActiveTheme] = useState(lightTheme)
 
 	const handleBlur = (event: React.FocusEvent) => {
 		const { name }: any = event.target
@@ -123,6 +137,13 @@ export default function Form() {
 				visible: true,
 				severity: 'error',
 				message: 'Please fill out the form'
+			})
+			setTouched({
+				user: true,
+				sample_label: true,
+				proposal_number: true,
+				inner_diameter: true,
+				outer_diameter: true
 			})
 			return
 		} else {
@@ -268,200 +289,221 @@ export default function Form() {
 	}))
 
 	return (
-		<Container component='main' maxWidth='sm'>
-			<Box
-				sx={{
-					boxShadow: 3,
-					borderRadius: 2,
-					px: 4,
-					py: 4,
-					marginTop: 8,
-					display: 'flex',
-					flexDirection: 'column',
-					alignItems: 'center'
-				}}
-			>
-				<FormControlLabel
-					control={<MaterialUISwitch sx={{ m: 1 }} checked={theme} onChange={() => (setTheme(!theme))} />}
-					label=''
-				/>
-				<a
-					href='https://www.modelyst.com/'
-					target='_blank'
-					rel='noopener noreferrer'
+		<ThemeProvider theme={activeTheme}>
+			<CssBaseline />
+			<Container component='main' maxWidth='sm'>
+				<Box
+					sx={{
+						boxShadow: 5,
+						borderRadius: 4,
+						border: 1,
+						borderColor: 'primary.main',
+						px: 4,
+						py: 4,
+						marginTop: 4,
+						marginBottom: 4,
+						display: 'flex',
+						flexDirection: 'column',
+						alignItems: 'center'
+					}}
 				>
-					<Image
-						src='/modelyst-logo.svg'
-						alt='Modelyst Logo'
-						width={200}
-						height={48}
-						priority
+					<FormControlLabel
+						control={
+							<MaterialUISwitch
+								sx={{ m: 1 }}
+								checked={activeTheme === darkTheme}
+								onChange={() =>
+									setActiveTheme(
+										activeTheme === lightTheme ? darkTheme : lightTheme
+									)
+								}
+							/>
+						}
+						label=''
 					/>
-				</a>
-				<Typography component='h1' variant='h5'>
-					Scientific Sample Registration Form
-				</Typography>
-				<Box component='form' onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
-					<Tooltip
-						title='Select a user from the dropdown menu'
-						arrow
-						TransitionComponent={Zoom}
+					<a
+						href='https://www.modelyst.com/'
+						target='_blank'
+						rel='noopener noreferrer'
 					>
-						<FormControl fullWidth>
-							<InputLabel id='userLabel'>Select User *</InputLabel>
-							<Select
-								labelId='userLabel'
-								label='Select User'
-								name='user'
-								value={formData.user}
-								onBlur={handleBlur}
-								onChange={handleSelectChange}
-								error={validations.user.state}
-							>
-								{dummyUsers.map((user) => (
-									<MenuItem key={user.id} value={user.name}>
-										{user.name}
-									</MenuItem>
-								))}
-							</Select>
-							<FormHelperText error>
-								{validations.user.helperText
-									? validations.user.helperText
-									: ' '}
-							</FormHelperText>
-						</FormControl>
-					</Tooltip>
-					<Tooltip
-						title='Fill out a sample label'
-						arrow
-						TransitionComponent={Zoom}
-					>
-						<TextField
-							margin='normal'
-							required
-							fullWidth
-							label='Sample Label'
-							name='sample_label'
-							value={formData.sample_label}
-							onBlur={handleBlur}
-							onChange={handleInputChange}
-							error={validations.sample_label.state}
-							helperText={
-								validations.sample_label.helperText
-									? validations.sample_label.helperText
-									: ' '
-							}
+						<Image
+							src='/modelyst-logo.svg'
+							alt='Modelyst Logo'
+							width={200}
+							height={48}
+							priority
 						/>
-					</Tooltip>
-					<Tooltip
-						title='Fill out a proposal number'
-						arrow
-						TransitionComponent={Zoom}
+					</a>
+					<Typography component='h1' variant='h5'>
+						Scientific Sample Registration Form
+					</Typography>
+					<Box
+						component='form'
+						onSubmit={handleSubmit}
+						noValidate
+						sx={{ mt: 1 }}
 					>
-						<TextField
-							margin='normal'
-							required
-							fullWidth
-							type='number'
-							label='Proposal Number'
-							name='proposal_number'
-							value={formData.proposal_number}
-							onBlur={handleBlur}
-							onChange={handleInputChange}
-							error={validations.proposal_number.state}
-							helperText={
-								validations.proposal_number.helperText
-									? validations.proposal_number.helperText
-									: ' '
-							}
-						/>
-					</Tooltip>
-					<Tooltip
-						title='Fill out an inner diameter'
-						arrow
-						TransitionComponent={Zoom}
-					>
-						<TextField
-							margin='normal'
-							required
-							fullWidth
-							type='number'
-							label='Inner Diameter (mm)'
-							id='inner_diameter'
-							name='inner_diameter'
-							value={formData.inner_diameter}
-							onBlur={handleBlur}
-							onChange={(e) =>
-								setFormData({
-									...formData,
-									inner_diameter: parseFloat(e.target.value)
-								})
-							}
-							error={validations.inner_diameter.state}
-							helperText={
-								validations.inner_diameter.helperText
-									? validations.inner_diameter.helperText
-									: ' '
-							}
-						/>
-					</Tooltip>
-					<Tooltip
-						title='Fill out an outer diameter'
-						arrow
-						TransitionComponent={Zoom}
-					>
-						<TextField
-							margin='normal'
-							required
-							fullWidth
-							type='number'
-							label='Outer Diameter (mm)'
-							name='outer_diameter'
-							value={formData.outer_diameter}
-							onBlur={handleBlur}
-							onChange={(e) =>
-								setFormData({
-									...formData,
-									outer_diameter: parseFloat(e.target.value)
-								})
-							}
-							error={validations.outer_diameter.state}
-							helperText={
-								validations.outer_diameter.helperText
-									? validations.outer_diameter.helperText
-									: ' '
-							}
-						/>
-					</Tooltip>
-					<Tooltip title='Submit the form' arrow TransitionComponent={Zoom}>
-						<Button
-							type='submit'
-							fullWidth
-							variant='contained'
-							sx={{ mt: 2, mb: 1 }}
+						<Tooltip
+							title='Select a user from the dropdown menu'
+							arrow
+							TransitionComponent={Zoom}
 						>
-							Submit
-						</Button>
-					</Tooltip>
+							<FormControl fullWidth>
+								<InputLabel id='userLabel'>Select User *</InputLabel>
+								<Select
+									labelId='userLabel'
+									label='Select User'
+									name='user'
+									value={formData.user}
+									onBlur={handleBlur}
+									onChange={handleSelectChange}
+									error={validations.user.state}
+								>
+									{dummyUsers.map((user) => (
+										<MenuItem key={user.id} value={user.name}>
+											{user.name}
+										</MenuItem>
+									))}
+								</Select>
+								<FormHelperText error>
+									{validations.user.helperText
+										? validations.user.helperText
+										: ' '}
+								</FormHelperText>
+							</FormControl>
+						</Tooltip>
+						<Tooltip
+							title='Fill out a sample label'
+							arrow
+							TransitionComponent={Zoom}
+						>
+							<TextField
+								margin='normal'
+								required
+								fullWidth
+								label='Sample Label'
+								name='sample_label'
+								value={formData.sample_label}
+								onBlur={handleBlur}
+								onChange={handleInputChange}
+								error={validations.sample_label.state}
+								helperText={
+									validations.sample_label.helperText
+										? validations.sample_label.helperText
+										: ' '
+								}
+							/>
+						</Tooltip>
+						<Tooltip
+							title='Fill out a proposal number'
+							arrow
+							TransitionComponent={Zoom}
+						>
+							<TextField
+								margin='normal'
+								required
+								fullWidth
+								type='number'
+								label='Proposal Number'
+								name='proposal_number'
+								value={formData.proposal_number}
+								onBlur={handleBlur}
+								onChange={handleInputChange}
+								error={validations.proposal_number.state}
+								helperText={
+									validations.proposal_number.helperText
+										? validations.proposal_number.helperText
+										: ' '
+								}
+							/>
+						</Tooltip>
+						<Tooltip
+							title='Fill out an inner diameter'
+							arrow
+							TransitionComponent={Zoom}
+						>
+							<TextField
+								margin='normal'
+								required
+								fullWidth
+								type='number'
+								label='Inner Diameter (mm)'
+								id='inner_diameter'
+								name='inner_diameter'
+								value={formData.inner_diameter}
+								onBlur={handleBlur}
+								onChange={(e) =>
+									setFormData({
+										...formData,
+										inner_diameter: parseFloat(e.target.value)
+									})
+								}
+								error={validations.inner_diameter.state}
+								helperText={
+									validations.inner_diameter.helperText
+										? validations.inner_diameter.helperText
+										: ' '
+								}
+							/>
+						</Tooltip>
+						<Tooltip
+							title='Fill out an outer diameter'
+							arrow
+							TransitionComponent={Zoom}
+						>
+							<TextField
+								margin='normal'
+								required
+								fullWidth
+								type='number'
+								label='Outer Diameter (mm)'
+								name='outer_diameter'
+								value={formData.outer_diameter}
+								onBlur={handleBlur}
+								onChange={(e) =>
+									setFormData({
+										...formData,
+										outer_diameter: parseFloat(e.target.value)
+									})
+								}
+								error={validations.outer_diameter.state}
+								helperText={
+									validations.outer_diameter.helperText
+										? validations.outer_diameter.helperText
+										: ' '
+								}
+							/>
+						</Tooltip>
+						<Tooltip title='Submit the form' arrow TransitionComponent={Zoom}>
+							<Button
+								type='submit'
+								fullWidth
+								variant='contained'
+								sx={{ mt: 2, mb: 1 }}
+							>
+								Submit
+							</Button>
+						</Tooltip>
+					</Box>
 				</Box>
-			</Box>
-			<Snackbar
-				open={activateToast.visible}
-				anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-				TransitionComponent={(props: TransitionProps) => (
-					<Slide {...props} direction='up' />
-				)}
-				autoHideDuration={6000}
-				onClose={handleClose}
-			>
-				<Alert
-					onClose={handleClose} // @ts-ignore
-					severity={activateToast.severity}
-					sx={{ width: '100%' }}
+				<Snackbar
+					open={activateToast.visible}
+					anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+					TransitionComponent={(props: TransitionProps) => (
+						<Slide {...props} direction='up' />
+					)}
+					autoHideDuration={6000}
+					onClose={handleClose}
 				>
-					{activateToast.message}
-				</Alert>
-			</Snackbar>
-		</Container>
+					<Alert
+						onClose={handleClose} // @ts-ignore
+						severity={activateToast.severity}
+						sx={{ width: '100%' }}
+					>
+						{activateToast.message}
+					</Alert>
+				</Snackbar>
+			</Container>
+		</ThemeProvider>
 	)
 }
