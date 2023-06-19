@@ -1,9 +1,12 @@
 'use client'
 import { useState, forwardRef } from 'react'
 import Image from 'next/image'
+import { styled } from '@mui/material/styles'
 import Container from '@mui/material/Container'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
+import FormControlLabel from '@mui/material/FormControlLabel'
+import Switch, { SwitchProps } from '@mui/material/Switch'
 import FormControl from '@mui/material/FormControl'
 import FormHelperText from '@mui/material/FormHelperText'
 import InputLabel from '@mui/material/InputLabel'
@@ -11,9 +14,11 @@ import Select, { SelectChangeEvent } from '@mui/material/Select'
 import MenuItem from '@mui/material/MenuItem'
 import TextField from '@mui/material/TextField'
 import Button from '@mui/material/Button'
+import Tooltip from '@mui/material/Tooltip'
 import Snackbar from '@mui/material/Snackbar'
 import MuiAlert, { AlertProps } from '@mui/material/Alert'
 import Slide, { SlideProps } from '@mui/material/Slide'
+import Zoom from '@mui/material/Zoom'
 
 interface formData {
 	user: string
@@ -77,6 +82,8 @@ export default function Form() {
 		message: ''
 	})
 
+	const [theme, setTheme] = useState(false)
+
 	const handleBlur = (event: React.FocusEvent) => {
 		const { name }: any = event.target
 		setTouched({
@@ -115,14 +122,14 @@ export default function Form() {
 			setActivateToast({
 				visible: true,
 				severity: 'error',
-				message: 'Form is invalid'
+				message: 'Please fill out the form'
 			})
 			return
 		} else {
 			setActivateToast({
 				visible: true,
 				severity: 'success',
-				message: 'Form is valid'
+				message: 'Success!'
 			})
 			console.log({
 				user: formData.user,
@@ -213,6 +220,53 @@ export default function Form() {
 		})
 	}
 
+	const MaterialUISwitch = styled(Switch)(({ theme }) => ({
+		width: 62,
+		height: 34,
+		padding: 7,
+		'& .MuiSwitch-switchBase': {
+			margin: 1,
+			padding: 0,
+			transform: 'translateX(6px)',
+			'&.Mui-checked': {
+				color: '#fff',
+				transform: 'translateX(22px)',
+				'& .MuiSwitch-thumb:before': {
+					backgroundImage: `url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" height="20" width="20" viewBox="0 0 20 20"><path fill="${encodeURIComponent(
+						'#fff'
+					)}" d="M4.2 2.5l-.7 1.8-1.8.7 1.8.7.7 1.8.6-1.8L6.7 5l-1.9-.7-.6-1.8zm15 8.3a6.7 6.7 0 11-6.6-6.6 5.8 5.8 0 006.6 6.6z"/></svg>')`
+				},
+				'& + .MuiSwitch-track': {
+					opacity: 1,
+					backgroundColor: theme.palette.mode === 'dark' ? '#8796A5' : '#aab4be'
+				}
+			}
+		},
+		'& .MuiSwitch-thumb': {
+			backgroundColor: theme.palette.mode === 'dark' ? '#003892' : '#001e3c',
+			width: 32,
+			height: 32,
+			'&:before': {
+				content: "''",
+				position: 'absolute',
+				width: '100%',
+				height: '100%',
+				left: 0,
+				top: 0,
+				backgroundRepeat: 'no-repeat',
+				backgroundPosition: 'center',
+				backgroundImage: `url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" height="20" width="20" viewBox="0 0 20 20"><path fill="${encodeURIComponent(
+					'#fff'
+				)}" d="M9.305 1.667V3.75h1.389V1.667h-1.39zm-4.707 1.95l-.982.982L5.09 6.072l.982-.982-1.473-1.473zm10.802 0L13.927 5.09l.982.982 1.473-1.473-.982-.982zM10 5.139a4.872 4.872 0 00-4.862 4.86A4.872 4.872 0 0010 14.862 4.872 4.872 0 0014.86 10 4.872 4.872 0 0010 5.139zm0 1.389A3.462 3.462 0 0113.471 10a3.462 3.462 0 01-3.473 3.472A3.462 3.462 0 016.527 10 3.462 3.462 0 0110 6.528zM1.665 9.305v1.39h2.083v-1.39H1.666zm14.583 0v1.39h2.084v-1.39h-2.084zM5.09 13.928L3.616 15.4l.982.982 1.473-1.473-.982-.982zm9.82 0l-.982.982 1.473 1.473.982-.982-1.473-1.473zM9.305 16.25v2.083h1.389V16.25h-1.39z"/></svg>')`
+			}
+		},
+		'& .MuiSwitch-track': {
+			opacity: 1,
+			backgroundColor: theme.palette.mode === 'dark' ? '#8796A5' : '#aab4be',
+			borderRadius: 20 / 2
+		}
+	}))
+
 	return (
 		<Container component='main' maxWidth='sm'>
 			<Box
@@ -227,6 +281,10 @@ export default function Form() {
 					alignItems: 'center'
 				}}
 			>
+				<FormControlLabel
+					control={<MaterialUISwitch sx={{ m: 1 }} checked={theme} onChange={() => (setTheme(!theme))} />}
+					label=''
+				/>
 				<a
 					href='https://www.modelyst.com/'
 					target='_blank'
@@ -244,113 +302,147 @@ export default function Form() {
 					Scientific Sample Registration Form
 				</Typography>
 				<Box component='form' onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
-					<FormControl fullWidth>
-						<InputLabel id='userLabel'>Select User *</InputLabel>
-						<Select
-							labelId='userLabel'
-							label='Select User'
-							name='user'
-							value={formData.user}
-							onBlur={handleBlur}
-							onChange={handleSelectChange}
-							error={validations.user.state}
-						>
-							{dummyUsers.map((user) => (
-								<MenuItem key={user.id} value={user.name}>
-									{user.name}
-								</MenuItem>
-							))}
-						</Select>
-						<FormHelperText error>
-							{validations.user.helperText ? validations.user.helperText : ' '}
-						</FormHelperText>
-					</FormControl>
-					<TextField
-						margin='normal'
-						required
-						fullWidth
-						label='Sample Label'
-						name='sample_label'
-						value={formData.sample_label}
-						onBlur={handleBlur}
-						onChange={handleInputChange}
-						error={validations.sample_label.state}
-						helperText={
-							validations.sample_label.helperText
-								? validations.sample_label.helperText
-								: ' '
-						}
-					/>
-					<TextField
-						margin='normal'
-						required
-						fullWidth
-						type='number'
-						label='Proposal Number'
-						name='proposal_number'
-						value={formData.proposal_number}
-						onBlur={handleBlur}
-						onChange={handleInputChange}
-						error={validations.proposal_number.state}
-						helperText={
-							validations.proposal_number.helperText
-								? validations.proposal_number.helperText
-								: ' '
-						}
-					/>
-					<TextField
-						margin='normal'
-						required
-						fullWidth
-						type='number'
-						label='Inner Diameter (mm)'
-						id='inner_diameter'
-						name='inner_diameter'
-						value={formData.inner_diameter}
-						onBlur={handleBlur}
-						onChange={(e) =>
-							setFormData({
-								...formData,
-								inner_diameter: parseFloat(e.target.value)
-							})
-						}
-						error={validations.inner_diameter.state}
-						helperText={
-							validations.inner_diameter.helperText
-								? validations.inner_diameter.helperText
-								: ' '
-						}
-					/>
-					<TextField
-						margin='normal'
-						required
-						fullWidth
-						type='number'
-						label='Outer Diameter (mm)'
-						name='outer_diameter'
-						value={formData.outer_diameter}
-						onBlur={handleBlur}
-						onChange={(e) =>
-							setFormData({
-								...formData,
-								outer_diameter: parseFloat(e.target.value)
-							})
-						}
-						error={validations.outer_diameter.state}
-						helperText={
-							validations.outer_diameter.helperText
-								? validations.outer_diameter.helperText
-								: ' '
-						}
-					/>
-					<Button
-						type='submit'
-						fullWidth
-						variant='contained'
-						sx={{ mt: 2, mb: 1 }}
+					<Tooltip
+						title='Select a user from the dropdown menu'
+						arrow
+						TransitionComponent={Zoom}
 					>
-						Submit
-					</Button>
+						<FormControl fullWidth>
+							<InputLabel id='userLabel'>Select User *</InputLabel>
+							<Select
+								labelId='userLabel'
+								label='Select User'
+								name='user'
+								value={formData.user}
+								onBlur={handleBlur}
+								onChange={handleSelectChange}
+								error={validations.user.state}
+							>
+								{dummyUsers.map((user) => (
+									<MenuItem key={user.id} value={user.name}>
+										{user.name}
+									</MenuItem>
+								))}
+							</Select>
+							<FormHelperText error>
+								{validations.user.helperText
+									? validations.user.helperText
+									: ' '}
+							</FormHelperText>
+						</FormControl>
+					</Tooltip>
+					<Tooltip
+						title='Fill out a sample label'
+						arrow
+						TransitionComponent={Zoom}
+					>
+						<TextField
+							margin='normal'
+							required
+							fullWidth
+							label='Sample Label'
+							name='sample_label'
+							value={formData.sample_label}
+							onBlur={handleBlur}
+							onChange={handleInputChange}
+							error={validations.sample_label.state}
+							helperText={
+								validations.sample_label.helperText
+									? validations.sample_label.helperText
+									: ' '
+							}
+						/>
+					</Tooltip>
+					<Tooltip
+						title='Fill out a proposal number'
+						arrow
+						TransitionComponent={Zoom}
+					>
+						<TextField
+							margin='normal'
+							required
+							fullWidth
+							type='number'
+							label='Proposal Number'
+							name='proposal_number'
+							value={formData.proposal_number}
+							onBlur={handleBlur}
+							onChange={handleInputChange}
+							error={validations.proposal_number.state}
+							helperText={
+								validations.proposal_number.helperText
+									? validations.proposal_number.helperText
+									: ' '
+							}
+						/>
+					</Tooltip>
+					<Tooltip
+						title='Fill out an inner diameter'
+						arrow
+						TransitionComponent={Zoom}
+					>
+						<TextField
+							margin='normal'
+							required
+							fullWidth
+							type='number'
+							label='Inner Diameter (mm)'
+							id='inner_diameter'
+							name='inner_diameter'
+							value={formData.inner_diameter}
+							onBlur={handleBlur}
+							onChange={(e) =>
+								setFormData({
+									...formData,
+									inner_diameter: parseFloat(e.target.value)
+								})
+							}
+							error={validations.inner_diameter.state}
+							helperText={
+								validations.inner_diameter.helperText
+									? validations.inner_diameter.helperText
+									: ' '
+							}
+						/>
+					</Tooltip>
+					<Tooltip
+						title='Fill out an outer diameter'
+						arrow
+						TransitionComponent={Zoom}
+					>
+						<TextField
+							margin='normal'
+							required
+							fullWidth
+							type='number'
+							label='Outer Diameter (mm)'
+							name='outer_diameter'
+							value={formData.outer_diameter}
+							onBlur={handleBlur}
+							onChange={(e) =>
+								setFormData({
+									...formData,
+									outer_diameter: parseFloat(e.target.value)
+								})
+							}
+							error={validations.outer_diameter.state}
+							helperText={
+								validations.outer_diameter.helperText
+									? validations.outer_diameter.helperText
+									: ' '
+							}
+						/>
+					</Tooltip>
+					<Tooltip title='Submit the form' arrow TransitionComponent={Zoom}>
+						<Button
+							type='submit'
+							fullWidth
+							variant='contained'
+							sx={{ mt: 2, mb: 1 }}
+						>
+							Submit
+						</Button>
+					</Tooltip>
 				</Box>
 			</Box>
 			<Snackbar
