@@ -1,26 +1,25 @@
 'use client'
 import React, { useState, forwardRef } from 'react'
 import Image from 'next/image'
-import { styled } from '@mui/material/styles'
+import { styled, ThemeProvider, createTheme } from '@mui/material/styles'
+import { CssBaseline } from '@mui/material'
+import Snackbar from '@mui/material/Snackbar'
 import Container from '@mui/material/Container'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
-import FormControlLabel from '@mui/material/FormControlLabel'
-import Switch from '@mui/material/Switch'
 import FormControl from '@mui/material/FormControl'
+import FormControlLabel from '@mui/material/FormControlLabel'
 import FormHelperText from '@mui/material/FormHelperText'
-import InputLabel from '@mui/material/InputLabel'
+import Tooltip from '@mui/material/Tooltip'
+import Switch from '@mui/material/Switch'
 import Select, { SelectChangeEvent } from '@mui/material/Select'
 import MenuItem from '@mui/material/MenuItem'
+import InputLabel from '@mui/material/InputLabel'
 import TextField from '@mui/material/TextField'
 import Button from '@mui/material/Button'
-import Tooltip from '@mui/material/Tooltip'
-import Snackbar from '@mui/material/Snackbar'
 import MuiAlert, { AlertProps } from '@mui/material/Alert'
 import Slide, { SlideProps } from '@mui/material/Slide'
 import Zoom from '@mui/material/Zoom'
-import { ThemeProvider, createTheme } from '@mui/material/styles'
-import { CssBaseline } from '@mui/material'
 
 interface formData {
 	user: string
@@ -403,7 +402,6 @@ export default function Form() {
 								margin='normal'
 								required
 								fullWidth
-								type='number'
 								label='Proposal Number'
 								name='proposal_number'
 								value={formData.proposal_number}
@@ -427,10 +425,13 @@ export default function Form() {
 								required
 								fullWidth
 								type='number'
+								InputProps={{
+									inputProps: { min: 0 }
+								}}
 								label='Inner Diameter (mm)'
 								id='inner_diameter'
 								name='inner_diameter'
-								value={formData.inner_diameter}
+								value={formData.inner_diameter.toString()}
 								onBlur={handleBlur}
 								onChange={(e) =>
 									setFormData({
@@ -456,9 +457,12 @@ export default function Form() {
 								required
 								fullWidth
 								type='number'
+								InputProps={{
+									inputProps: { min: 0 }
+								}}
 								label='Outer Diameter (mm)'
 								name='outer_diameter'
-								value={formData.outer_diameter}
+								value={formData.outer_diameter.toString()}
 								onBlur={handleBlur}
 								onChange={(e) =>
 									setFormData({
