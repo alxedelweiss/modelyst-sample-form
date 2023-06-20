@@ -208,7 +208,7 @@ export default function Form() {
 				(Number.isNaN(formData.inner_diameter) ||
 					formData.inner_diameter <= 0 ||
 					formData.inner_diameter >= formData.outer_diameter) &&
-				'Inner diameter must be a valid number greater than 0 and less than outer diameter'
+				'Inner diameter must be a valid number greater than 0 and lesser than outer diameter'
 		},
 		outer_diameter: {
 			state:
