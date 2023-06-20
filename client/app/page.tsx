@@ -19,6 +19,7 @@ import Snackbar from '@mui/material/Snackbar'
 import Slide, { SlideProps } from '@mui/material/Slide'
 import Zoom from '@mui/material/Zoom'
 
+// local imports
 import MaterialUISwitch from './components/switch'
 import { formData, touched, activateToast } from './interfaces'
 import { lightTheme, darkTheme } from './components/themes'
@@ -53,7 +54,7 @@ export default function Form(): JSX.Element {
 		outer_diameter: false
 	})
 
-	// activateToast is a stateful object that is used to determine if a toast should be displayed
+	// 'activateToast' is a stateful object that is used to determine if a toast should be displayed
 	// e.g.: if the form is submitted successfully or not
 	const [activateToast, setActivateToast] = useState<activateToast>({
 		visible: false,
@@ -61,36 +62,36 @@ export default function Form(): JSX.Element {
 		message: ''
 	})
 
-	// activeTheme is a stateful theme object that is used to determine if the theme is light or dark
+	// 'activeTheme' is a stateful theme object that is used to determine if the theme is light or dark
 	const [activeTheme, setActiveTheme] = useState<
 		typeof lightTheme | typeof darkTheme
 	>(lightTheme)
 
-	// handleBlur is a function that is used to determine if a field has been touched/visited
+	// 'handleBlur' is a function that is used to determine if a field has been touched/visited
 	// e.g.: if the user has visited the field and left it empty, then the field is invalid
 	const handleBlur = (event: React.FocusEvent) => {
 		const { name }: any = event.target
 		setTouched({
 			...touched,
-			[name]: true
+			[name]: true // set the field to touched
 		})
 	}
 
-	// handleSelectChange is a function that is used to control the user dropdown menu
+	// 'handleSelectChange' is a function that is used to control the user dropdown menu
 	const handleSelectChange = (event: SelectChangeEvent) => {
 		setFormData({
 			...formData,
-			user: event.target.value as string
+			user: event.target.value // set the user to the selected value
 		})
 	}
 
-	// handleInputChange is a function that is used to control the text fields
+	// 'handleInputChange' is a function that is used to control the text fields
 	const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
 		const { name, value } = event.target
-		setFormData({ ...formData, [name]: value })
+		setFormData({ ...formData, [name]: value }) // set the field to the value
 	}
 
-	// handleClose is a function that is used to close the toast
+	// 'handleClose' is a function that is used to close the toast
 	const handleClose = (
 		event?: React.SyntheticEvent | Event,
 		reason?: string
@@ -104,10 +105,11 @@ export default function Form(): JSX.Element {
 		})
 	}
 
-	// handleSubmit is a function that is used to handle submission of the form
+	// 'handleSubmit' is a function that is used to handle submission of the form
 	const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
 		event.preventDefault()
 
+		// if any of the fields are invalid or empty, then display an error toast
 		if (
 			validations.user.state ||
 			validations.sample_label.state ||
@@ -134,6 +136,7 @@ export default function Form(): JSX.Element {
 			})
 			return
 		} else {
+			// if all the fields are valid, then display a success toast and submit the form
 			setActivateToast({
 				visible: true,
 				severity: 'success',
@@ -147,6 +150,7 @@ export default function Form(): JSX.Element {
 				outer_diameter: formData.outer_diameter
 			})
 		}
+		// reset the form
 		setFormData({
 			user: '',
 			sample_label: '',
@@ -163,7 +167,7 @@ export default function Form(): JSX.Element {
 		})
 	}
 
-	// validations is an object that is used to determine if a field is valid or not
+	// 'validations' is an object that is used to determine if a field is valid or not
 	// each field has a state(boolean) and a helperText:
 	// · the state is used to determine if the field is valid or not
 	// · the helperText is used to display a message to the user if the field is invalid
@@ -173,7 +177,7 @@ export default function Form(): JSX.Element {
 			helperText:
 				touched.user && formData.user === ''
 					? 'You need to specify a user'
-					: ' '
+					: ' '  // if the field is valid, then the empty string serves as a placeholder for the helperText
 		},
 		sample_label: {
 			state: touched.sample_label && formData.sample_label.length === 0,
@@ -284,7 +288,7 @@ export default function Form(): JSX.Element {
 					<Box
 						component='form'
 						onSubmit={handleSubmit}
-						noValidate
+						noValidate // disable HTML5 validation
 						sx={{ mt: 1 }}
 					>
 						<Tooltip
@@ -326,10 +330,10 @@ export default function Form(): JSX.Element {
 								label='Sample Label'
 								name='sample_label'
 								value={formData.sample_label}
-								onBlur={handleBlur}
+								onBlur={handleBlur} // when the field is blurred, then set the field to touched
 								onChange={handleInputChange}
-								error={validations.sample_label.state}
-								helperText={validations.sample_label.helperText}
+								error={validations.sample_label.state} // if the field is invalid, then display an error
+								helperText={validations.sample_label.helperText} // if the field is invalid, then display a message
 							/>
 						</Tooltip>
 						<Tooltip
@@ -371,7 +375,7 @@ export default function Form(): JSX.Element {
 								onChange={(e) =>
 									setFormData({
 										...formData,
-										inner_diameter: parseFloat(e.target.value)
+										inner_diameter: parseFloat(e.target.value) // convert the value to a float
 									})
 								}
 								error={validations.inner_diameter.state}
@@ -398,7 +402,7 @@ export default function Form(): JSX.Element {
 								onChange={(e) =>
 									setFormData({
 										...formData,
-										outer_diameter: parseFloat(e.target.value)
+										outer_diameter: parseFloat(e.target.value) // convert the value to a float
 									})
 								}
 								error={validations.outer_diameter.state}
