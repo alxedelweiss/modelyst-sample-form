@@ -1,9 +1,8 @@
 'use client'
-import React, { useState, forwardRef } from 'react'
+import React, { useState } from 'react'
 import Image from 'next/image'
-import { styled, ThemeProvider, createTheme } from '@mui/material/styles'
+import { ThemeProvider } from '@mui/material/styles'
 import { CssBaseline } from '@mui/material'
-import Snackbar from '@mui/material/Snackbar'
 import Container from '@mui/material/Container'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
@@ -11,58 +10,19 @@ import FormControl from '@mui/material/FormControl'
 import FormControlLabel from '@mui/material/FormControlLabel'
 import FormHelperText from '@mui/material/FormHelperText'
 import Tooltip from '@mui/material/Tooltip'
-import Switch from '@mui/material/Switch'
+import InputLabel from '@mui/material/InputLabel'
 import Select, { SelectChangeEvent } from '@mui/material/Select'
 import MenuItem from '@mui/material/MenuItem'
-import InputLabel from '@mui/material/InputLabel'
 import TextField from '@mui/material/TextField'
 import Button from '@mui/material/Button'
-import MuiAlert, { AlertProps } from '@mui/material/Alert'
+import Snackbar from '@mui/material/Snackbar'
 import Slide, { SlideProps } from '@mui/material/Slide'
 import Zoom from '@mui/material/Zoom'
 
-interface formData {
-	user: string
-	sample_label: string
-	proposal_number: string
-	inner_diameter: number
-	outer_diameter: number
-}
-
-interface touched {
-	user: boolean
-	sample_label: boolean
-	proposal_number: boolean
-	inner_diameter: boolean
-	outer_diameter: boolean
-}
-
-interface activateToast {
-	visible: boolean
-	severity: string
-	message: string
-}
-
-const Alert = forwardRef<HTMLDivElement, AlertProps>(function Alert(
-	props,
-	ref
-) {
-	return <MuiAlert elevation={6} ref={ref} variant='filled' {...props} />
-})
-
-type TransitionProps = Omit<SlideProps, 'direction'>
-
-const lightTheme = createTheme({
-	palette: {
-		mode: 'light'
-	}
-})
-
-const darkTheme = createTheme({
-	palette: {
-		mode: 'dark'
-	}
-})
+import MaterialUISwitch from './components/switch'
+import { formData, touched, activateToast } from './interfaces'
+import { lightTheme, darkTheme } from './components/themes'
+import Alert from './components/alert'
 
 const dummyUsers = [
 	{ id: 1, name: 'John Doe' },
@@ -72,8 +32,11 @@ const dummyUsers = [
 	{ id: 5, name: 'Janice Danice' }
 ]
 
-export default function Form() {
-	const [formData, setFormData] = useState({
+export default function Form(): JSX.Element {
+	// state type interfaces are defined in ./interfaces.ts
+
+	// formData is a stateful object that contains the form data
+	const [formData, setFormData] = useState<formData>({
 		user: '',
 		sample_label: '',
 		proposal_number: '',
@@ -81,7 +44,8 @@ export default function Form() {
 		outer_diameter: 0
 	})
 
-	const [touched, setTouched] = useState({
+	// touched is a stateful boolean object that is used to determine if a field has been touched/visited
+	const [touched, setTouched] = useState<touched>({
 		user: false,
 		sample_label: false,
 		proposal_number: false,
@@ -89,14 +53,21 @@ export default function Form() {
 		outer_diameter: false
 	})
 
-	const [activateToast, setActivateToast] = useState({
+	// activateToast is a stateful object that is used to determine if a toast should be displayed
+	// e.g.: if the form is submitted successfully or not
+	const [activateToast, setActivateToast] = useState<activateToast>({
 		visible: false,
-		severity: '',
+		severity: 'success',
 		message: ''
 	})
 
-	const [activeTheme, setActiveTheme] = useState(lightTheme)
+	// activeTheme is a stateful theme object that is used to determine if the theme is light or dark
+	const [activeTheme, setActiveTheme] = useState<
+		typeof lightTheme | typeof darkTheme
+	>(lightTheme)
 
+	// handleBlur is a function that is used to determine if a field has been touched/visited
+	// e.g.: if the user has visited the field and left it empty, then the field is invalid
 	const handleBlur = (event: React.FocusEvent) => {
 		const { name }: any = event.target
 		setTouched({
@@ -105,6 +76,7 @@ export default function Form() {
 		})
 	}
 
+	// handleSelectChange is a function that is used to control the user dropdown menu
 	const handleSelectChange = (event: SelectChangeEvent) => {
 		setFormData({
 			...formData,
@@ -112,11 +84,27 @@ export default function Form() {
 		})
 	}
 
+	// handleInputChange is a function that is used to control the text fields
 	const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
 		const { name, value } = event.target
 		setFormData({ ...formData, [name]: value })
 	}
 
+	// handleClose is a function that is used to close the toast
+	const handleClose = (
+		event?: React.SyntheticEvent | Event,
+		reason?: string
+	) => {
+		if (reason === 'clickaway') {
+			return
+		}
+		setActivateToast({
+			...activateToast,
+			visible: false
+		})
+	}
+
+	// handleSubmit is a function that is used to handle submission of the form
 	const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
 		event.preventDefault()
 
@@ -175,25 +163,31 @@ export default function Form() {
 		})
 	}
 
+	// validations is an object that is used to determine if a field is valid or not
+	// each field has a state(boolean) and a helperText:
+	// · the state is used to determine if the field is valid or not
+	// · the helperText is used to display a message to the user if the field is invalid
 	const validations = {
 		user: {
 			state: touched.user && formData.user === '',
 			helperText:
-				touched.user && formData.user === '' && 'You need to specify a user'
+				touched.user && formData.user === ''
+					? 'You need to specify a user'
+					: ' '
 		},
 		sample_label: {
 			state: touched.sample_label && formData.sample_label.length === 0,
 			helperText:
-				touched.sample_label &&
-				formData.sample_label.length === 0 &&
-				'You need to specify a sample label'
+				touched.sample_label && formData.sample_label.length === 0
+					? 'You need to specify a sample label'
+					: ' '
 		},
 		proposal_number: {
 			state: touched.proposal_number && formData.proposal_number.length === 0,
 			helperText:
-				touched.proposal_number &&
-				formData.proposal_number.length === 0 &&
-				'You need to specify a proposal number'
+				touched.proposal_number && formData.proposal_number.length === 0
+					? 'You need to specify a proposal number'
+					: ' '
 		},
 		inner_diameter: {
 			state:
@@ -207,8 +201,9 @@ export default function Form() {
 				touched.outer_diameter &&
 				(Number.isNaN(formData.inner_diameter) ||
 					formData.inner_diameter <= 0 ||
-					formData.inner_diameter >= formData.outer_diameter) &&
-				'Inner diameter must be a valid number greater than 0 and lesser than outer diameter'
+					formData.inner_diameter >= formData.outer_diameter)
+					? 'Inner diameter must be a valid number greater than 0 and lesser than outer diameter'
+					: ' '
 		},
 		outer_diameter: {
 			state:
@@ -222,70 +217,11 @@ export default function Form() {
 				touched.outer_diameter &&
 				(Number.isNaN(formData.outer_diameter) ||
 					formData.outer_diameter <= 0 ||
-					formData.inner_diameter >= formData.outer_diameter) &&
-				'Outer diameter must be a valid number greater than 0 and greater than inner diameter'
+					formData.inner_diameter >= formData.outer_diameter)
+					? 'Outer diameter must be a valid number greater than 0 and greater than inner diameter'
+					: ' '
 		}
 	}
-
-	const handleClose = (
-		event?: React.SyntheticEvent | Event,
-		reason?: string
-	) => {
-		if (reason === 'clickaway') {
-			return
-		}
-		setActivateToast({
-			...activateToast,
-			visible: false
-		})
-	}
-
-	const MaterialUISwitch = styled(Switch)(({ theme }) => ({
-		width: 62,
-		height: 34,
-		padding: 7,
-		'& .MuiSwitch-switchBase': {
-			margin: 1,
-			padding: 0,
-			transform: 'translateX(6px)',
-			'&.Mui-checked': {
-				color: '#fff',
-				transform: 'translateX(22px)',
-				'& .MuiSwitch-thumb:before': {
-					backgroundImage: `url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" height="20" width="20" viewBox="0 0 20 20"><path fill="${encodeURIComponent(
-						'#fff'
-					)}" d="M4.2 2.5l-.7 1.8-1.8.7 1.8.7.7 1.8.6-1.8L6.7 5l-1.9-.7-.6-1.8zm15 8.3a6.7 6.7 0 11-6.6-6.6 5.8 5.8 0 006.6 6.6z"/></svg>')`
-				},
-				'& + .MuiSwitch-track': {
-					opacity: 1,
-					backgroundColor: theme.palette.mode === 'dark' ? '#8796A5' : '#aab4be'
-				}
-			}
-		},
-		'& .MuiSwitch-thumb': {
-			backgroundColor: theme.palette.mode === 'dark' ? '#003892' : '#001e3c',
-			width: 32,
-			height: 32,
-			'&:before': {
-				content: "''",
-				position: 'absolute',
-				width: '100%',
-				height: '100%',
-				left: 0,
-				top: 0,
-				backgroundRepeat: 'no-repeat',
-				backgroundPosition: 'center',
-				backgroundImage: `url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" height="20" width="20" viewBox="0 0 20 20"><path fill="${encodeURIComponent(
-					'#fff'
-				)}" d="M9.305 1.667V3.75h1.389V1.667h-1.39zm-4.707 1.95l-.982.982L5.09 6.072l.982-.982-1.473-1.473zm10.802 0L13.927 5.09l.982.982 1.473-1.473-.982-.982zM10 5.139a4.872 4.872 0 00-4.862 4.86A4.872 4.872 0 0010 14.862 4.872 4.872 0 0014.86 10 4.872 4.872 0 0010 5.139zm0 1.389A3.462 3.462 0 0113.471 10a3.462 3.462 0 01-3.473 3.472A3.462 3.462 0 016.527 10 3.462 3.462 0 0110 6.528zM1.665 9.305v1.39h2.083v-1.39H1.666zm14.583 0v1.39h2.084v-1.39h-2.084zM5.09 13.928L3.616 15.4l.982.982 1.473-1.473-.982-.982zm9.82 0l-.982.982 1.473 1.473.982-.982-1.473-1.473zM9.305 16.25v2.083h1.389V16.25h-1.39z"/></svg>')`
-			}
-		},
-		'& .MuiSwitch-track': {
-			opacity: 1,
-			backgroundColor: theme.palette.mode === 'dark' ? '#8796A5' : '#aab4be',
-			borderRadius: 20 / 2
-		}
-	}))
 
 	return (
 		<ThemeProvider theme={activeTheme}>
@@ -306,33 +242,42 @@ export default function Form() {
 						alignItems: 'center'
 					}}
 				>
-					<FormControlLabel
-						control={
-							<MaterialUISwitch
-								sx={{ m: 1 }}
-								checked={activeTheme === darkTheme}
-								onChange={() =>
-									setActiveTheme(
-										activeTheme === lightTheme ? darkTheme : lightTheme
-									)
-								}
-							/>
-						}
-						label=''
-					/>
-					<a
-						href='https://www.modelyst.com/'
-						target='_blank'
-						rel='noopener noreferrer'
+					<Tooltip
+						title='Change between light and dark mode'
+						arrow
+						TransitionComponent={Zoom}
 					>
-						<Image
-							src='/modelyst-logo.svg'
-							alt='Modelyst Logo'
-							width={200}
-							height={48}
-							priority
+						<FormControlLabel
+							control={
+								<MaterialUISwitch
+									autoFocus
+									sx={{ m: 1 }}
+									checked={activeTheme === darkTheme}
+									onChange={() =>
+										setActiveTheme(
+											activeTheme === lightTheme ? darkTheme : lightTheme
+										)
+									}
+								/>
+							}
+							label=''
 						/>
-					</a>
+					</Tooltip>
+					<Tooltip title='Visit modelyst.com' arrow TransitionComponent={Zoom}>
+						<a
+							href='https://www.modelyst.com/'
+							target='_blank'
+							rel='noopener noreferrer'
+						>
+							<Image
+								src='/modelyst-logo.svg'
+								alt='Modelyst Logo'
+								width={200}
+								height={48}
+								priority
+							/>
+						</a>
+					</Tooltip>
 					<Typography component='h1' variant='h5'>
 						Scientific Sample Registration Form
 					</Typography>
@@ -365,9 +310,7 @@ export default function Form() {
 									))}
 								</Select>
 								<FormHelperText error>
-									{validations.user.helperText
-										? validations.user.helperText
-										: ' '}
+									{validations.user.helperText}
 								</FormHelperText>
 							</FormControl>
 						</Tooltip>
@@ -386,11 +329,7 @@ export default function Form() {
 								onBlur={handleBlur}
 								onChange={handleInputChange}
 								error={validations.sample_label.state}
-								helperText={
-									validations.sample_label.helperText
-										? validations.sample_label.helperText
-										: ' '
-								}
+								helperText={validations.sample_label.helperText}
 							/>
 						</Tooltip>
 						<Tooltip
@@ -408,11 +347,7 @@ export default function Form() {
 								onBlur={handleBlur}
 								onChange={handleInputChange}
 								error={validations.proposal_number.state}
-								helperText={
-									validations.proposal_number.helperText
-										? validations.proposal_number.helperText
-										: ' '
-								}
+								helperText={validations.proposal_number.helperText}
 							/>
 						</Tooltip>
 						<Tooltip
@@ -440,11 +375,7 @@ export default function Form() {
 									})
 								}
 								error={validations.inner_diameter.state}
-								helperText={
-									validations.inner_diameter.helperText
-										? validations.inner_diameter.helperText
-										: ' '
-								}
+								helperText={validations.inner_diameter.helperText}
 							/>
 						</Tooltip>
 						<Tooltip
@@ -471,11 +402,7 @@ export default function Form() {
 									})
 								}
 								error={validations.outer_diameter.state}
-								helperText={
-									validations.outer_diameter.helperText
-										? validations.outer_diameter.helperText
-										: ' '
-								}
+								helperText={validations.outer_diameter.helperText}
 							/>
 						</Tooltip>
 						<Tooltip title='Submit the form' arrow TransitionComponent={Zoom}>
@@ -493,14 +420,14 @@ export default function Form() {
 				<Snackbar
 					open={activateToast.visible}
 					anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-					TransitionComponent={(props: TransitionProps) => (
+					TransitionComponent={(props: Omit<SlideProps, 'direction'>) => (
 						<Slide {...props} direction='up' />
 					)}
 					autoHideDuration={6000}
 					onClose={handleClose}
 				>
 					<Alert
-						onClose={handleClose} // @ts-ignore
+						onClose={handleClose}
 						severity={activateToast.severity}
 						sx={{ width: '100%' }}
 					>
