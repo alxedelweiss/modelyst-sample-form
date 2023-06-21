@@ -45,7 +45,7 @@ This repository contains my work on the coding challenge. It is a monorepo - you
 
 ❖ Validations on every field, covering types and logic, along with error feedback indicating the problem
 
-❖ Submission function that prevents POST-ing of invalid or incomplete data
+❖ Form submission function that prevents POST-ing of invalid or incomplete data
 
 ❖ Light/Dark theme switch
 
@@ -53,7 +53,7 @@ This repository contains my work on the coding challenge. It is a monorepo - you
 
 ### On the `server`:
 
-❖ Created a `users` and a `samples` table
+❖ Created a `users` and a `samples` tables
 
 ❖ Created the following API routes:
 
