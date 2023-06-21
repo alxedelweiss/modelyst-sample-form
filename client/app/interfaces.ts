@@ -21,3 +21,9 @@ export interface activateToast {
 	severity: AlertColor
 	message: string
 }
+
+export interface user {
+  id: number
+  name: string
+}
+export interface users extends Array<user> {}

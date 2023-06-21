@@ -1,5 +1,5 @@
 'use client'
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import Image from 'next/image'
 import { ThemeProvider } from '@mui/material/styles'
 import { CssBaseline } from '@mui/material'
@@ -18,25 +18,31 @@ import Button from '@mui/material/Button'
 import Snackbar from '@mui/material/Snackbar'
 import Slide, { SlideProps } from '@mui/material/Slide'
 import Zoom from '@mui/material/Zoom'
+// import {
+// 	useQuery,
+// 	useQueryClient,
+// 	QueryClient,
+// 	QueryClientProvider
+// } from '@tanstack/react-query'
 
 // local imports
 import MaterialUISwitch from './components/switch'
-import { formData, touched, activateToast } from './interfaces'
+import { formData, touched, activateToast, user, users } from './interfaces'
 import { lightTheme, darkTheme } from './components/themes'
 import Alert from './components/alert'
 
-const dummyUsers = [
-	{ id: 1, name: 'John Doe' },
-	{ id: 2, name: 'Jane Doe' },
-	{ id: 3, name: 'John Smith' },
-	{ id: 4, name: 'Jane Smith' },
-	{ id: 5, name: 'Janice Danice' }
-]
+// const dummyUsers = [
+// 	{ id: 1, name: 'John Doe' },
+// 	{ id: 2, name: 'Jane Doe' },
+// 	{ id: 3, name: 'John Smith' },
+// 	{ id: 4, name: 'Jane Smith' },
+// 	{ id: 5, name: 'Janice Danice' }
+// ]
 
 export default function Form(): JSX.Element {
 	// state type interfaces are defined in ./interfaces.ts
 
-	// formData is a stateful object that contains the form data
+	// formData is a stateful object that contains the scientific sample form data
 	const [formData, setFormData] = useState<formData>({
 		user: '',
 		sample_label: '',
@@ -45,7 +51,7 @@ export default function Form(): JSX.Element {
 		outer_diameter: 0
 	})
 
-	// touched is a stateful boolean object that is used to determine if a field has been touched/visited
+	// touched is a stateful object that is used to determine if a field has been touched/visited
 	const [touched, setTouched] = useState<touched>({
 		user: false,
 		sample_label: false,
@@ -66,6 +72,32 @@ export default function Form(): JSX.Element {
 	const [activeTheme, setActiveTheme] = useState<
 		typeof lightTheme | typeof darkTheme
 	>(lightTheme)
+
+	// 'users' is a stateful array of <user> objects fetched from the API
+	const [users, setUsers] = useState<users>([])
+
+	// 'useEffect' is a function that is used to fetch the users from the API
+	// I opted for this method instead of using react-query
+	useEffect(() => {
+		fetch('/users').then((res) => {
+			if (res.ok) {
+				res.json().then((data) => {
+					setUsers(data)
+					setActivateToast({
+						visible: true,
+						severity: 'success',
+						message: 'Users fetched successfully!'
+					})
+				})
+			} else {
+				setActivateToast({
+					visible: true,
+					severity: 'error',
+					message: 'Failed to fetch users.'
+				})
+			}
+		})
+	}, [])
 
 	// 'handleBlur' is a function that is used to determine if a field has been touched/visited
 	// e.g.: if the user has visited the field and left it empty, then the field is invalid
@@ -125,7 +157,7 @@ export default function Form(): JSX.Element {
 			setActivateToast({
 				visible: true,
 				severity: 'error',
-				message: 'Please fill out the form'
+				message: 'Please fill out the form.'
 			})
 			setTouched({
 				user: true,
@@ -136,48 +168,67 @@ export default function Form(): JSX.Element {
 			})
 			return
 		} else {
-			// if all the fields are valid, then display a success toast and submit the form
-			setActivateToast({
-				visible: true,
-				severity: 'success',
-				message: 'Success!'
-			})
-			console.log({
-				user: formData.user,
-				sample_label: formData.sample_label,
-				proposal_number: formData.proposal_number,
-				inner_diameter: formData.inner_diameter,
-				outer_diameter: formData.outer_diameter
+			// if all the fields are valid, then attempt to submit the form
+			fetch(
+				`/users/${
+					//@ts-ignore
+					users.find((user) => user.name === formData.user).id
+				}/samples`,
+				{
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json'
+					},
+					body: JSON.stringify(formData)
+				}
+			).then((res) => {
+				// if the form is submitted successfully, then display a success toast and reset the form
+				if (res.ok) {
+					setActivateToast({
+						visible: true,
+						severity: 'success',
+						message: 'Form submitted successfully!'
+					})
+					setFormData({
+						user: '',
+						sample_label: '',
+						proposal_number: '',
+						inner_diameter: 0,
+						outer_diameter: 0
+					})
+					setTouched({
+						user: false,
+						sample_label: false,
+						proposal_number: false,
+						inner_diameter: false,
+						outer_diameter: false
+					})
+				} else {
+					// if the form is not submitted successfully, then display an error toast with a message from the API
+					res.json().then((data) => {
+						setActivateToast({
+							visible: true,
+							severity: 'error',
+							message: data.detail
+						})
+					})
+				}
 			})
 		}
-		// reset the form
-		setFormData({
-			user: '',
-			sample_label: '',
-			proposal_number: '',
-			inner_diameter: 0,
-			outer_diameter: 0
-		})
-		setTouched({
-			user: false,
-			sample_label: false,
-			proposal_number: false,
-			inner_diameter: false,
-			outer_diameter: false
-		})
 	}
-
-	// 'validations' is an object that is used to determine if a field is valid or not
-	// each field has a state(boolean) and a helperText:
-	// · the state is used to determine if the field is valid or not
-	// · the helperText is used to display a message to the user if the field is invalid
+	//////////////////////////////////////////////////////////////////////////////////////////
+	// 'validations' is an object that is used to determine if a field is valid or not			/
+	// each field has a state(boolean) and a helperText:																		/
+	// · the state is used to determine if the field is valid or not												/
+	// · the helperText is used to display a message to the user if the field is invalid		/
+	//////////////////////////////////////////////////////////////////////////////////////////
 	const validations = {
 		user: {
 			state: touched.user && formData.user === '',
 			helperText:
 				touched.user && formData.user === ''
 					? 'You need to specify a user'
-					: ' '  // if the field is valid, then the empty string serves as a placeholder for the helperText
+					: ' ' // if the field is valid, then the empty string serves as a placeholder for the helperText
 		},
 		sample_label: {
 			state: touched.sample_label && formData.sample_label.length === 0,
@@ -226,8 +277,65 @@ export default function Form(): JSX.Element {
 					: ' '
 		}
 	}
+	////////////////////////////////////////////////////////
+	// React-query method; it works, but it's not optimal //
+	////////////////////////////////////////////////////////
+
+	// const queryClient = new QueryClient()
+	// const FetchUsers = () => {
+	// 	const { data } = useQuery({
+	// 		queryKey: ['users'],
+	// 		queryFn: async () => {
+	// 			const response = await fetch('/users/')
+	// 			if (!response.ok) throw new Error('Network response was not ok')
+	// 			return response.json()
+	// 		},
+	// 		//trying to avoid refetching
+	// 		refetchIntervalInBackground: false,
+	// 		refetchOnMount: false,
+	// 		refetchOnWindowFocus: false,
+	// 		refetchInterval: false,
+	// 		refetchOnReconnect: false,
+	// 		retry: false,
+	// 		retryDelay: 1000,
+	// 		retryOnMount: false,
+	// 		retryOnWindowFocus: false,
+	// 		staleTime: 1000 * 60 * 60 * 24, // 24 hours
+	// 		notifyOnChangeProps: ['data'],
+	// 		keepPreviousData: true
+	// 	})
+
+	// 	return (
+	// 		<Tooltip
+	// 			title='Select a user from the dropdown menu'
+	// 			arrow
+	// 			TransitionComponent={Zoom}
+	// 		>
+	// 			<FormControl fullWidth>
+	// 				<InputLabel id='userLabel'>Select User *</InputLabel>
+	// 				<Select
+	// 					labelId='userLabel'
+	// 					label='Select User'
+	// 					name='user'
+	// 					value={formData.user}
+	// 					onBlur={handleBlur}
+	// 					onChange={handleSelectChange}
+	// 					error={validations.user.state}
+	// 				>
+	// 					{data?.map((user: any) => (
+	// 						<MenuItem key={user.id} value={user.name}>
+	// 							{user.name}
+	// 						</MenuItem>
+	// 					))}
+	// 				</Select>
+	// 				<FormHelperText error>{validations.user.helperText}</FormHelperText>
+	// 			</FormControl>
+	// 		</Tooltip>
+	// 	)
+	// }
 
 	return (
+		// <QueryClientProvider client={queryClient}>
 		<ThemeProvider theme={activeTheme}>
 			<CssBaseline />
 			<Container component='main' maxWidth='sm'>
@@ -307,9 +415,9 @@ export default function Form(): JSX.Element {
 									onChange={handleSelectChange}
 									error={validations.user.state}
 								>
-									{dummyUsers.map((user) => (
-										<MenuItem key={user.id} value={user.name}>
-											{user.name}
+									{users?.map((usr: user) => (
+										<MenuItem key={usr.id} value={usr.name}>
+											{usr.name}
 										</MenuItem>
 									))}
 								</Select>
@@ -318,6 +426,7 @@ export default function Form(): JSX.Element {
 								</FormHelperText>
 							</FormControl>
 						</Tooltip>
+						{/* <FetchUsers /> */}
 						<Tooltip
 							title='Fill out a sample label'
 							arrow
@@ -427,7 +536,7 @@ export default function Form(): JSX.Element {
 					TransitionComponent={(props: Omit<SlideProps, 'direction'>) => (
 						<Slide {...props} direction='up' />
 					)}
-					autoHideDuration={6000}
+					autoHideDuration={3500}
 					onClose={handleClose}
 				>
 					<Alert
@@ -440,5 +549,6 @@ export default function Form(): JSX.Element {
 				</Snackbar>
 			</Container>
 		</ThemeProvider>
+		// </QueryClientProvider>
 	)
 }
