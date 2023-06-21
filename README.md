@@ -65,6 +65,8 @@ This repository contains my work on the coding challenge. It is a monorepo - you
 
 ## <img src="https://media2.giphy.com/media/QssGEmpkyEOhBCb7e1/giphy.gif?cid=ecf05e47a0n3gi1bfqntqmob8g9aid1oyj2wr3ds3mg700bl&rid=giphy.gif" width ="25"> Instructions
 
+First, clone the repo on your machine with `git clone https://github.com/agalev/modelyst-sample-form.git` or if you have the GitHub CLI installed - `gh repo clone agalev/modelyst-sample-form`
+
 For `client`:
 1. Navigate to the client folder `cd client`
 2. Install the dependencies with `npm install`
