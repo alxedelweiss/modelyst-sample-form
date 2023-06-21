@@ -53,7 +53,7 @@ This repository contains my work on the coding challenge. It is a monorepo - you
 
 ### On the `server`:
 
-❖ Created a `users` and a `samples` tables
+❖ Created `users` and `samples` tables
 
 ❖ Created the following API routes:
 
