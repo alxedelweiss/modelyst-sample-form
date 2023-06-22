@@ -78,9 +78,7 @@ For `client`:
 For `server`:
 1. Navigate to the root folder where `/server` is
 2. Install the dependencies manually with `pip` -> `pip install fastapi` `pip install "uvicorn[standard]"` `pip install sqlalchemy`
-
 3. Make sure you are still in the `root` folder. Run command `uvicorn server.main:app --reload` to start the server
-   
 4. Navigate back to your browser at [http://localhost:3000](http://localhost:3000) and refresh the page. The fetched users will correctly load in the dropdown menu and the form will be submittable
 
 *Note that the `pip install` command installs the modules globally. You might already have the packages*
