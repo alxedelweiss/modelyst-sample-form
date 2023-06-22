@@ -217,10 +217,10 @@ export default function Form(): JSX.Element {
 		}
 	}
 	//////////////////////////////////////////////////////////////////////////////////////////
-	// 'validations' is an object that is used to determine if a field is valid or not			/
-	// each field has a state(boolean) and a helperText:																		/
-	// · the state is used to determine if the field is valid or not												/
-	// · the helperText is used to display a message to the user if the field is invalid		/
+	// 'validations' is an object that is used to determine if a field is valid or not			//
+	// each field has a state(boolean) and a helperText:																		//
+	// · the state is used to determine if the field is valid or not												//
+	// · the helperText is used to display a message to the user if the field is invalid		//
 	//////////////////////////////////////////////////////////////////////////////////////////
 	const validations = {
 		user: {
@@ -474,7 +474,7 @@ export default function Form(): JSX.Element {
 								fullWidth
 								type='number'
 								InputProps={{
-									inputProps: { min: 0 }
+									inputProps: { min: 0, step: 0.1 }
 								}}
 								label='Inner Diameter (mm)'
 								id='inner_diameter'
@@ -502,7 +502,7 @@ export default function Form(): JSX.Element {
 								fullWidth
 								type='number'
 								InputProps={{
-									inputProps: { min: 0 }
+									inputProps: { min: 0, step: 0.1 }
 								}}
 								label='Outer Diameter (mm)'
 								name='outer_diameter'
